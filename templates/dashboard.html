@@ -1,0 +1,88 @@
+{% extends 'base.html' %}
+{% block content %}
+
+<style>
+  .border-purple {
+    border-color: #6f42c1 !important;
+  }
+  .text-purple {
+    color: #6f42c1 !important;
+  }
+  .btn-outline-purple {
+    color: #6f42c1;
+    border-color: #6f42c1;
+  }
+  .btn-outline-purple:hover {
+    background-color: #6f42c1;
+    color: white;
+  }
+</style>
+
+<div class="content">
+  <div class="container-fluid">
+
+    <h2 class="mb-4 text-primary"><i class="fas fa-desktop me-2"></i> Painel de Controle</h2>
+    <p class="mb-4">Bem-vindo, <strong>{{ request.user.username }}</strong>! Você está logado no sistema.</p>
+
+    <div class="row g-3">
+      <!-- Card: Recentes -->
+      <div class="col-md-4">
+        <div class="card shadow-sm border-start border-4 border-secondary">
+          <div class="card-body text-center">
+            <i class="fas fa-clock fa-2x text-secondary mb-2"></i>
+            <h5 class="card-title">Recentes</h5>
+            <p class="text-muted mb-0">Seus documentos recentes aparecerão aqui.</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Card: Documentos -->
+      <div class="col-md-4">
+        <div class="card shadow-sm border-start border-4 border-primary">
+          <div class="card-body text-center">
+            <i class="fas fa-folder-open fa-2x text-primary mb-2"></i>
+            <h5 class="card-title">Documentos</h5>
+            <p class="text-muted">Você ainda não adicionou documentos.</p>
+            <a href="{% url 'cadastrar_arquivo' %}" class="btn btn-outline-primary btn-sm">Adicionar Documento</a>
+          </div>
+        </div>
+      </div>
+
+      <!-- Card: Favoritos -->
+      <div class="col-md-4">
+        <div class="card shadow-sm border-start border-4 border-purple">
+          <div class="card-body text-center">
+            <i class="far fa-bookmark fa-2x text-purple mb-2"></i>
+            <h5 class="card-title">Favoritos</h5>
+            <p class="text-muted">Salve atalhos úteis aqui.</p>
+            <a href="{% url 'adicionar_favorito' %}" class="btn btn-outline-purple btn-sm">Adicionar Favorito</a>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Integrações -->
+    <div class="row mt-5">
+      <div class="col-md-12">
+        <h5 class="mb-3"><i class="fas fa-plug text-dark me-2"></i> Integrações Rápidas</h5>
+        <div class="d-flex flex-wrap gap-2">
+          <a href="#" class="btn btn-outline-secondary rounded-pill">
+            <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/google/google-original.svg" width="18" class="me-1"> Google Drive
+          </a>
+          <a href="#" class="btn btn-outline-secondary rounded-pill">
+            <i class="fab fa-slack me-1 text-primary"></i> Slack
+          </a>
+          <a href="#" class="btn btn-outline-secondary rounded-pill">
+            <i class="fab fa-microsoft me-1 text-info"></i> Teams
+          </a>
+          <a href="#" class="btn btn-outline-secondary rounded-pill">
+            <i class="fas fa-file-excel me-1 text-success"></i> Planilha Excel
+          </a>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+{% endblock %}

@@ -1,0 +1,187 @@
+{% extends 'base.html' %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/trix/2.0.0/trix.min.css" integrity="sha512-PiwD2K2W4vRoOXH1UnRfIj7sswBG/jtkpYAFgKQxjSlWwwjCSMRP5qvLHOzkgDOU4ZdAiwhPaHLDqls5aEdf5A==" crossorigin="anonymous" />
+<link href="https://cdn.quilljs.com/1.3.6/quill.snow.css" rel="stylesheet">
+
+<meta http-equiv="Content-Security-Policy" content="default-src * 'unsafe-inline' 'unsafe-eval' data:;">
+<style>
+  .file-drop-area {
+    border: 2px dashed #6c757d;
+    border-radius: .5rem;
+    padding: 2rem;
+    background-color: #f8f9fa;
+    text-align: center;
+    position: relative;
+    transition: border-color 0.3s ease-in-out;
+  }
+  .file-drop-area:hover {
+    border-color: #007bff;
+  }
+  .file-drop-area input[type="file"] {
+    opacity: 0;
+    position: absolute;
+    inset: 0;
+    cursor: pointer;
+  }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="content-header">
+  <div class="container-fluid">
+    <h1 class="mb-4"><i class="fas fa-file-upload mr-2 text-primary"></i> Novo Documento</h1>
+  </div>
+</div>
+
+<div class="content">
+  <div class="container-fluid">
+    <div class="card card-outline card-primary shadow-sm">
+      <div class="card-body">
+
+        <form method="post" enctype="multipart/form-data" autocomplete="off">
+          {% csrf_token %}
+
+          <div class="row">
+            <!-- Título -->
+            <div class="form-group col-md-4">
+              <label for="id_titulo">Título <span class="text-danger">*</span></label>
+              <input type="text" name="titulo" id="id_titulo" class="form-control" required placeholder="Ex: Contrato de Locação">
+            </div>
+
+            <!-- Categoria -->
+            <div class="form-group col-md-4">
+              <label for="id_categoria">Categoria <span class="text-danger">*</span></label>
+              <select name="categoria" id="id_categoria" class="form-control" required>
+                <option value="">Selecione uma categoria</option>
+                {% for cat in categorias %}
+                  <option value="{{ cat.id }}">{{ cat.nome }}</option>
+                {% endfor %}
+              </select>
+            </div>
+
+            <!-- Órgão -->
+            <div class="form-group col-md-4">
+              <label for="id_orgao">Órgão</label>
+              <select name="orgao" id="id_orgao" class="form-control">
+                <option value="">Selecione um órgão</option>
+                {% for orgao in orgaos %}
+                  <option value="{{ orgao.id }}">{{ orgao.nome }}</option>
+                {% endfor %}
+              </select>
+            </div>
+          </div>
+
+          <div class="row">
+            <!-- Departamento -->
+            <div class="form-group col-md-6">
+              <label for="id_departamento">Departamento</label>
+              <select name="departamento" id="id_departamento" class="form-control">
+                <option value="">Selecione um departamento</option>
+                {% for dept in departamentos %}
+                  <option value="{{ dept.id }}">{{ dept.nome }} ({{ dept.orgao.nome }})</option>
+                {% endfor %}
+              </select>
+            </div>
+
+            <!-- Secretaria -->
+            <div class="form-group col-md-6">
+              <label for="id_secretaria">Secretaria</label>
+              <select name="secretaria" id="id_secretaria" class="form-control">
+                <option value="">Selecione uma secretaria</option>
+                {% for sec in secretarias %}
+                  <option value="{{ sec.id }}">{{ sec.nome }} ({{ sec.departamento.nome }})</option>
+                {% endfor %}
+              </select>
+            </div>
+          </div>
+
+<!-- Upload -->
+<div class="form-group mt-3">
+  <label class="d-block mb-2">Arquivo <span class="text-danger">*</span></label>
+  <div class="file-drop-area">
+    <i class="fas fa-cloud-upload-alt fa-3x text-primary mb-2"></i>
+    <p class="mb-1 font-weight-bold">Arraste seu arquivo aqui ou clique para selecionar</p>
+    <p class="text-muted small">Formatos permitidos: PDF, JPG, PNG, DOCX...</p>
+    <input type="file" name="arquivo" id="id_arquivo" required>
+  </div>
+  <div id="file-info" class="mt-2 text-info font-weight-bold"></div>
+</div>
+
+
+         <!-- Observações -->
+<div class="form-group mt-4">
+  <label for="id_observacoes">Observações</label>
+  <div id="quill-editor" class="bg-white border rounded shadow-sm" style="min-height: 150px;"></div>
+  <input type="hidden" name="observacoes" id="id_observacoes">
+</div>
+
+
+          <!-- Ações -->
+          <div class="d-flex justify-content-between mt-4">
+            <a href="{% url 'listar_arquivos' %}" class="btn btn-outline-secondary">
+              <i class="fas fa-arrow-left"></i> Voltar
+            </a>
+            <button type="submit" class="btn btn-success">
+              <i class="fas fa-save"></i> Salvar Documento
+            </button>
+          </div>
+
+        </form>
+
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="https://cdnjs.cloudflare.com/ajax/libs/trix/2.0.0/trix.min.js" integrity="sha512-hsXJ+i6BYCyvGJqzpDwM6z6KNYH+Wh6JZkYy6HR8LVKgeLGNMDslWJGEKkMx0BxlnMEhG8R3UlPOlnSbnYJuAw==" crossorigin="anonymous"></script>
+
+
+<script>
+  document.getElementById('id_arquivo').addEventListener('change', function () {
+    const fileInput = this;
+    const fileInfo = document.getElementById('file-info');
+    if (fileInput.files.length > 0) {
+      const file = fileInput.files[0];
+      const fileName = file.name;
+      const extension = fileName.split('.').pop().toUpperCase();
+      fileInfo.textContent = `Arquivo selecionado: ${fileName} (.${extension})`;
+    } else {
+      fileInfo.textContent = '';
+    }
+  });
+</script>
+
+<script src="https://cdn.quilljs.com/1.3.6/quill.min.js"></script>
+<script>
+  document.addEventListener('DOMContentLoaded', function () {
+    const quill = new Quill('#quill-editor', {
+      theme: 'snow',
+      placeholder: 'Digite as observações aqui...',
+      modules: {
+        toolbar: [
+          ['bold', 'italic', 'underline', 'strike'],
+          [{ header: [1, 2, 3, false] }],
+          [{ list: 'ordered' }, { list: 'bullet' }],
+          ['link', 'blockquote', 'code-block'],
+          ['clean']
+        ]
+      }
+    });
+
+    // Ao enviar o formulário, transfere o conteúdo para o input hidden
+    const form = document.querySelector('form');
+    form.addEventListener('submit', function () {
+      const hiddenInput = document.getElementById('id_observacoes');
+      hiddenInput.value = quill.root.innerHTML;
+    });
+  });
+</script>
+
+
+{% endblock %}
+
+
+

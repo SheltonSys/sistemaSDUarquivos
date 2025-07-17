@@ -1,0 +1,204 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="content-header">
+  <div class="container-fluid">
+    <h1 class="m-0 text-primary">
+      <i class="fas fa-plus"></i> Nova Digitalização
+    </h1>
+  </div>
+</div>
+
+<div class="content">
+  <div class="container-fluid">
+    <div class="card card-outline card-primary shadow-sm rounded-4">
+      <div class="card-body px-4 py-4">
+
+        <form method="post" enctype="multipart/form-data">
+          {% csrf_token %}
+
+          <div class="row">
+            <div class="col-md-8">
+              <div class="form-group">
+                <label for="titulo">Título <span class="text-danger">*</span></label>
+                <input type="text" name="titulo" id="titulo" class="form-control" required>
+              </div>
+            </div>
+
+            <div class="col-md-4">
+              <div class="form-group">
+                <label for="scanner-list">Selecione o Scanner</label>
+                <select id="scanner-list" class="form-control">
+                  <option value="">-- Nenhum scanner detectado --</option>
+                </select>
+              </div>
+            </div>
+
+          </div>
+
+          <div class="form-group">
+            <label>Digitalizar Documento</label><br>
+            <button type="button" class="btn btn-outline-primary" onclick="startScan()">
+              <i class="fas fa-print"></i> Iniciar Digitalização
+            </button>
+            <small class="form-text text-muted">Ou selecione o arquivo manualmente abaixo.</small>
+          </div>
+
+          <div class="row">
+            <div class="col-md-6">
+              <div class="form-group">
+                <label for="arquivo-manual">Selecionar Arquivo Manualmente</label>
+                <input type="file" name="arquivo" id="arquivo-manual" class="form-control" accept="image/*,.pdf" required>
+              </div>
+            </div>
+
+            <div class="col-md-6">
+              <div class="form-group">
+                <label>Pré-visualização</label><br>
+                <img id="preview-img" class="img-thumbnail border" style="display: none; max-width: 100%;">
+              </div>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label for="observacoes">Observações</label>
+            <textarea name="observacoes" id="observacoes" class="form-control" rows="3" placeholder="Observações adicionais (opcional)"></textarea>
+          </div>
+
+          <div class="d-flex justify-content-between mt-4">
+            <a href="{% url 'listar_digitalizacoes' %}" class="btn btn-secondary">
+              <i class="fas fa-arrow-left"></i> Cancelar
+            </a>
+            <button type="submit" class="btn btn-success">
+              <i class="fas fa-save"></i> Salvar
+            </button>
+          </div>
+        </form>
+
+      </div>
+    </div>
+  </div>
+</div>
+
+
+
+<!-- Dynamsoft WebTWAIN -->
+<script src="https://unpkg.com/dwt/dist/dynamsoft.webtwain.min.js"></script>
+
+<script>
+  let DWObject = null;
+
+  // Configuração da licença e caminho dos recursos
+  Dynamsoft.DWT.ProductKey = "t01938AUAAG3iZ/LerFuJG0f1eAk7gTLkhSTpW6vV74q4i8O29Zw04PeDzMHTnYJHQ4XmmCftEzzMXsU6FjjrVSjRGbr+kYLnzskKTi3vVJR3SgUnXzmBfp66NdvNvC9uYACGGdDtOWyApMB6lgMw2rJ6Z9gBzAGaATR3BskBl7fwwbc0eDEZ55g+S+iVkxWcWt6ZFkgZp1Rw8pXTF0jr0Ez+ttNaIJK+nB3AHKCXgPw/slOB4AgwB+gJMDbmenQ/N+8xjg==;t01918AUAAITWoyKhfjix3GRCKLYLUi3maBbFkeoL3lLPK7Zza6ebt/GQfi2Ypto/5tTKaQ888Mf8BmCzITbFY+b4llwT9chz52QDp9Z3Kuo7pYGTr5xAtzTDdtpmGRcHcAb6BdD9OuyApMA2lwwY7Np7ZzgALAFaALQ0BykBl6s4bz6RByT9++RAo5MNnFrfmQakjlMaOPnKOQXEBZhxWu24BUTSm3MAWAL0EpD/Q3YKCHKAJUBPgKWxoYP/AUWVMYE="; // Substitua por sua chave de teste ou licença
+  Dynamsoft.DWT.ResourcesPath = "https://unpkg.com/dwt/dist/";
+
+  // Inicializa o scanner ao carregar
+  Dynamsoft.DWT.OnReady = function () {
+    Dynamsoft.DWT.CreateDWTObjectEx({ WebTwainId: 'dwtcontrol' }).then((obj) => {
+      DWObject = obj;
+
+      const scannerList = document.getElementById("scanner-list");
+      scannerList.innerHTML = ""; // limpa opções anteriores
+
+      if (DWObject.SourceCount > 0) {
+        for (let i = 0; i < DWObject.SourceCount; i++) {
+          const name = DWObject.GetSourceNameItems(i);
+          const option = new Option(name, i);
+          scannerList.appendChild(option);
+        }
+      } else {
+        const noOption = new Option("-- Nenhum scanner detectado --", "");
+        scannerList.appendChild(noOption);
+      }
+
+    }).catch((err) => {
+      console.error("Erro ao inicializar scanner:", err);
+      const scannerList = document.getElementById("scanner-list");
+      scannerList.innerHTML = '<option value="">Erro ao detectar scanners</option>';
+    });
+  };
+
+  // Função para iniciar digitalização e mostrar preview
+  function startScan() {
+    if (!DWObject) return alert("Scanner não inicializado.");
+
+    const selectedIndex = document.getElementById("scanner-list").value;
+    if (selectedIndex === "") return alert("Selecione um scanner.");
+
+    DWObject.SelectSourceByIndex(parseInt(selectedIndex));
+    DWObject.OpenSource();
+
+    DWObject.AcquireImage({
+      IfShowUI: false,
+      OnSuccess: function () {
+        DWObject.GetImageBlob(0, function (blob) {
+          const preview = document.getElementById("preview-img");
+          preview.src = URL.createObjectURL(blob);
+          preview.style.display = "block";
+
+          const file = new File([blob], "digitalizacao.jpg", { type: blob.type });
+          const dataTransfer = new DataTransfer();
+          dataTransfer.items.add(file);
+          document.getElementById("arquivo-manual").files = dataTransfer.files;
+        }, function (err) {
+          alert("Erro ao obter imagem: " + err.message);
+        });
+      },
+      OnFailure: function (code, msg) {
+        alert("Erro ao digitalizar: " + msg);
+      }
+    });
+  }
+
+  // Enviar diretamente após digitalizar (não obrigatório)
+  function scanToUpload() {
+    if (!DWObject) return alert("Scanner não inicializado.");
+
+    const selectedIndex = document.getElementById("scanner-list").value;
+    if (selectedIndex === "") return alert("Selecione um scanner.");
+
+    DWObject.SelectSourceByIndex(parseInt(selectedIndex));
+    DWObject.OpenSource();
+
+    DWObject.AcquireImage({
+      IfShowUI: false,
+      OnSuccess: function () {
+        DWObject.GetImageBlob(0, function (blob) {
+          const formData = new FormData();
+          formData.append("titulo", document.querySelector("input[name='titulo']").value);
+          formData.append("observacoes", document.querySelector("textarea[name='observacoes']").value);
+          formData.append("arquivo", blob, "digitalizacao.jpg");
+
+          fetch("/upload-digitalizacao/", {
+            method: "POST",
+            body: formData,
+            headers: {
+              "X-CSRFToken": "{{ csrf_token }}"
+            }
+          })
+          .then(response => response.json())
+          .then(data => {
+            if (data.status === "ok") {
+              alert("Documento enviado com sucesso!");
+              window.location.href = "/digitalizar/";
+            } else {
+              alert("Erro ao enviar: " + data.msg);
+            }
+          })
+          .catch(err => {
+            alert("Erro ao enviar: " + err.message);
+          });
+
+        }, function (err) {
+          alert("Erro ao capturar imagem: " + err.message);
+        });
+      },
+      OnFailure: function (code, msg) {
+        alert("Falha ao digitalizar: " + msg);
+      }
+    });
+  }
+</script>
+
+
+
+{% endblock %}

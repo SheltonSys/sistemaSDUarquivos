@@ -1,0 +1,50 @@
+{% extends 'base.html' %}
+{% block content %}
+<section class="py-4 px-4 bg-white" style="min-height: 100vh;">
+  <div class="container-fluid">
+    <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-2">
+      <h2 class="mb-0 text-primary">
+        <i class="fas fa-users me-2"></i> Usuários Cadastrados
+      </h2>
+      <a href="{% url 'cadastrar_usuario' %}" class="btn btn-success rounded-pill shadow-sm">
+        <i class="fas fa-user-plus me-1"></i> Novo Usuário
+      </a>
+    </div>
+
+    <div class="card border-0 shadow rounded-4">
+      <div class="card-body p-0">
+        <div class="table-responsive">
+          <table class="table table-hover table-striped table-bordered align-middle mb-0 w-100">
+            <thead class="table-primary text-center">
+              <tr>
+                <th class="text-nowrap"><i class="fas fa-user"></i> Nome</th>
+                <th class="text-nowrap"><i class="fas fa-envelope"></i> Email</th>
+                <th class="text-nowrap"><i class="fas fa-university"></i> Órgão</th>
+                <th class="text-nowrap"><i class="fas fa-sitemap"></i> Departamento</th>
+                <th class="text-nowrap"><i class="fas fa-briefcase"></i> Secretaria</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for perfil in usuarios %}
+                <tr>
+                  <td class="text-nowrap">{{ perfil.user.get_full_name }}</td>
+                  <td class="text-nowrap">{{ perfil.user.email }}</td>
+                  <td class="text-nowrap">{{ perfil.orgao|default:"—" }}</td>
+                  <td class="text-nowrap">{{ perfil.departamento|default:"—" }}</td>
+                  <td class="text-nowrap">{{ perfil.secretaria|default:"—" }}</td>
+                </tr>
+              {% empty %}
+                <tr>
+                  <td colspan="5" class="text-center text-muted py-4">
+                    <i class="fas fa-info-circle me-1"></i> Nenhum usuário cadastrado.
+                  </td>
+                </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+{% endblock %}

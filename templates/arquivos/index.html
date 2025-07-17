@@ -1,0 +1,351 @@
+{% extends 'base.html' %}
+{% load humanize %}
+
+{% block content %}
+
+<style>
+  .border-purple {
+    border-color: #6f42c1 !important;
+  }
+  .text-purple {
+    color: #6f42c1 !important;
+  }
+  .btn-outline-purple {
+    color: #6f42c1;
+    border-color: #6f42c1;
+  }
+  .btn-outline-purple:hover {
+    background-color: #6f42c1;
+    color: white;
+  }
+  .stat-card {
+    border-radius: 12px;
+    box-shadow: 0 0 10px rgba(0,0,0,0.05);
+    transition: transform 0.2s;
+  }
+  .stat-card:hover {
+    transform: translateY(-3px);
+  }
+  .bg-light-gradient {
+    background: linear-gradient(135deg, #f8f9fa 0%, #f1f3f5 100%);
+  }
+</style>
+
+<div class="content">
+  <div class="container-fluid">
+
+    <!-- Título -->
+    <div class="d-flex justify-content-between align-items-center mb-4">
+      <h2 class="text-primary"><i class="fas fa-desktop me-2"></i> Painel de Controle</h2>
+    </div>
+
+<!-- Cards principais -->
+<div class="row g-4">
+  <!-- Card: Documentos Recentes -->
+  <div class="col-md-4">
+    <div class="card stat-card border-start border-4 border-secondary bg-light-gradient">
+      <div class="card-body text-center">
+        <i class="fas fa-clock fa-2x text-secondary mb-2"></i>
+        <h5 class="card-title">Documentos Recentes</h5>
+        <p class="text-muted">
+          {% if dias_desde_ultimo is not None %}
+            Último acesso há {{ dias_desde_ultimo }} dia{% if dias_desde_ultimo != 1 %}s{% endif %}
+          {% else %}
+            Nenhum documento enviado
+          {% endif %}
+        </p>
+        <a href="{% url 'listar_arquivos' %}" class="btn btn-outline-secondary btn-sm">Ver Todos</a>
+      </div>
+    </div>
+  </div>
+
+  <!-- Card: Total de Documentos -->
+  <div class="col-md-4">
+    <div class="card stat-card border-start border-4 border-primary bg-light-gradient">
+      <div class="card-body text-center">
+        <i class="fas fa-folder-open fa-2x text-primary mb-2"></i>
+        <h5 class="card-title">Total de Documentos</h5>
+        <h3 class="text-primary">{{ total_documentos }}</h3>
+        <a href="{% url 'cadastrar_arquivo' %}" class="btn btn-outline-primary btn-sm">Adicionar Novo</a>
+      </div>
+    </div>
+  </div>
+
+  <!-- Card: Favoritos -->
+  <div class="col-md-4">
+    <div class="card stat-card border-start border-4 border-purple bg-light-gradient">
+      <div class="card-body text-center">
+        <i class="far fa-bookmark fa-2x text-purple mb-2"></i>
+        <h5 class="card-title">Favoritos</h5>
+        <h3 class="text-purple">{{ total_favoritos }}</h3>
+        <a href="{% url 'adicionar_favorito' %}" class="btn btn-outline-purple btn-sm">Adicionar</a>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+    <!-- Estatísticas Visuais -->
+    <!-- Estatísticas Visuais -->
+<div class="row mt-5">
+  <div class="col-md-12">
+    <h5 class="mb-3"><i class="fas fa-chart-bar text-primary me-2"></i> Estatísticas Gerais</h5>
+    <div class="row g-4">
+
+      <!-- Uploads no mês -->
+      <div class="col-md-3">
+        <div class="card text-center shadow-sm p-3 bg-white rounded">
+          <i class="fas fa-upload fa-lg text-success mb-2"></i>
+          <h6>Uploads no mês</h6>
+          <p class="text-muted mb-0">{{ uploads_mes }} documento{% if uploads_mes != 1 %}s{% endif %}</p>
+        </div>
+      </div>
+
+      <!-- Usuários ativos -->
+      <div class="col-md-3">
+        <div class="card text-center shadow-sm p-3 bg-white rounded">
+          <i class="fas fa-user-friends fa-lg text-info mb-2"></i>
+          <h6>Usuários ativos</h6>
+          <p class="text-muted mb-0">{{ usuarios_ativos }} usuário{% if usuarios_ativos != 1 %}s{% endif %}</p>
+        </div>
+      </div>
+
+      <!-- Arquivos protegidos -->
+      <div class="col-md-3">
+        <div class="card text-center shadow-sm p-3 bg-white rounded">
+          <i class="fas fa-lock fa-lg text-warning mb-2"></i>
+          <h6>Arquivos protegidos</h6>
+          <p class="text-muted mb-0">{{ arquivos_protegidos }} arquivo{% if arquivos_protegidos != 1 %}s{% endif %}</p>
+        </div>
+      </div>
+
+      <!-- Compartilhamentos -->
+      <div class="col-md-3">
+        <div class="card text-center shadow-sm p-3 bg-white rounded">
+          <i class="fas fa-share-alt fa-lg text-danger mb-2"></i>
+          <h6>Compartilhamentos</h6>
+          <p class="text-muted mb-0">{{ compartilhamentos }} interação{% if compartilhamentos != 1 %}s{% endif %}</p>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+
+<!-- Integrações -->
+<div class="row mt-5">
+  <div class="col-md-12">
+    <h5 class="mb-4"><i class="fas fa-plug text-dark me-2"></i> Integrações Rápidas</h5>
+    <div class="row g-4">
+
+      <!-- Google Drive -->
+      <div class="col-md-3">
+        <div class="card h-100 shadow-sm text-center border-start border-4 border-danger">
+          <div class="card-body">
+            <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/google/google-original.svg" width="32" class="mb-2">
+            <h6 class="card-title">Google Drive</h6>
+            <p class="text-muted small">Armazene e acesse seus documentos na nuvem.</p>
+            <a href="#" class="btn btn-outline-danger btn-sm"><i class="fas fa-sync-alt me-1"></i> Sincronizar</a>
+          </div>
+        </div>
+      </div>
+
+      <!-- Slack -->
+      <div class="col-md-3">
+        <div class="card h-100 shadow-sm text-center border-start border-4 border-primary">
+          <div class="card-body">
+            <i class="fab fa-slack fa-2x text-primary mb-2"></i>
+            <h6 class="card-title">Slack</h6>
+            <p class="text-muted small">Receba notificações e alertas da equipe.</p>
+            <a href="#" class="btn btn-outline-primary btn-sm"><i class="fas fa-comment-dots me-1"></i> Acessar Canal</a>
+          </div>
+        </div>
+      </div>
+
+      <!-- Microsoft Teams -->
+      <div class="col-md-3">
+        <div class="card h-100 shadow-sm text-center border-start border-4 border-info">
+          <div class="card-body">
+            <i class="fab fa-microsoft fa-2x text-info mb-2"></i>
+            <h6 class="card-title">Teams</h6>
+            <p class="text-muted small">Participe de reuniões e chamadas com sua equipe.</p>
+            <a href="#" class="btn btn-outline-info btn-sm"><i class="fas fa-video me-1"></i> Iniciar Reunião</a>
+          </div>
+        </div>
+      </div>
+
+      <!-- Excel -->
+      <div class="col-md-3">
+        <div class="card h-100 shadow-sm text-center border-start border-4 border-success">
+          <div class="card-body">
+            <i class="fas fa-file-excel fa-2x text-success mb-2"></i>
+            <h6 class="card-title">Planilha Excel</h6>
+            <p class="text-muted small">Importe ou exporte dados financeiros rapidamente.</p>
+            <a href="#" class="btn btn-outline-success btn-sm"><i class="fas fa-file-import me-1"></i> Importar Dados</a>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+
+
+    <!-- Recursos Adicionais -->
+<div class="row mt-5">
+  <div class="col-md-12">
+    <h5 class="mb-3"><i class="fas fa-tools text-dark me-2"></i> Recursos e Utilidades</h5>
+    <div class="row g-4">
+      
+      <!-- Atalhos Úteis -->
+      <div class="col-md-4">
+        <div class="card shadow-sm h-100">
+          <div class="card-body">
+            <h6 class="card-title"><i class="fas fa-link me-2 text-primary"></i> Atalhos Rápidos</h6><br>
+            <ul class="list-unstyled mt-3">
+              <li><a href="#" class="text-decoration-none"><i class="fas fa-arrow-right me-2 text-muted"></i> Gerenciar Usuários</a></li>
+              <li><a href="#" class="text-decoration-none"><i class="fas fa-arrow-right me-2 text-muted"></i> Configurar Permissões</a></li>
+              <li><a href="#" class="text-decoration-none"><i class="fas fa-arrow-right me-2 text-muted"></i> Baixar Relatórios</a></li>
+              <li><a href="#" class="text-decoration-none"><i class="fas fa-arrow-right me-2 text-muted"></i> Enviar Comunicado</a></li>
+            </ul>
+          </div>
+        </div>
+      </div>
+
+      <!-- Avisos / Comunicados -->
+      <div class="col-md-4">
+        <div class="card shadow-sm h-100 border-start border-4 border-warning">
+          <div class="card-body">
+            <h6 class="card-title text-warning"><i class="fas fa-bullhorn me-2"></i> Avisos</h6><br>
+            <ul class="list-unstyled mt-2 mb-0">
+              <li class="mb-2"><i class="far fa-calendar-alt me-2 text-muted"></i> Reunião dia 20/07 às 9h</li>
+              <li class="mb-2"><i class="fas fa-exclamation-circle me-2 text-muted"></i> Atualize seus documentos</li>
+              <li><i class="fas fa-bell me-2 text-muted"></i> Backup automático ativado</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+
+      <!-- Ajuda / Tutoriais -->
+      <div class="col-md-4">
+        <div class="card shadow-sm h-100 border-start border-4 border-info">
+          <div class="card-body">
+            <h6 class="card-title text-info"><i class="fas fa-info-circle me-2"></i> Ajuda e Suporte</h6><br>
+            <p class="text-muted mb-3">Precisa de ajuda? Veja nossos tutoriais e orientações para usar o sistema com facilidade.</p>
+            <a href="#" class="btn btn-outline-info btn-sm"><i class="fas fa-play-circle me-1"></i> Ver Tutorial</a>
+            <a href="#" class="btn btn-outline-info btn-sm mt-2"><i class="fas fa-file-alt me-1"></i> Manual do Usuário</a>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+
+
+<!-- Linha do Tempo de Atividades -->
+<div class="row mt-5">
+  <div class="col-md-12">
+    <h5 class="mb-3"><i class="fas fa-history me-2 text-dark"></i> Atividades Recentes</h5>
+    <ul class="list-group list-group-flush">
+      {% if atividades %}
+        {% for doc in atividades %}
+          <li class="list-group-item">
+            <i class="fas fa-file-upload text-primary me-2"></i>
+            Você fez upload de <strong>"{{ doc.titulo }}"</strong> — 
+            <span class="text-muted">{{ doc.data_envio|timesince }} atrás</span>
+          </li>
+        {% endfor %}
+      {% else %}
+        <li class="list-group-item text-muted">Nenhuma atividade recente encontrada.</li>
+      {% endif %}
+    </ul>
+  </div>
+</div>
+
+
+<!-- Tabela de Documentos Recentes -->
+<div class="row mt-5">
+  <div class="col-md-12">
+    <h5 class="mb-3"><i class="fas fa-table text-dark me-2"></i> Documentos Recentes</h5>
+    <div class="table-responsive">
+      <table class="table table-hover align-middle">
+        <thead class="table-light">
+          <tr>
+            <th><i class="fas fa-file-alt me-1"></i> Documento</th>
+            <th>Categoria</th>
+            <th>Data</th>
+            <th class="text-end">Ações</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% if documentos_recentes %}
+            {% for doc in documentos_recentes %}
+              <tr>
+                <td>
+                  <i class="fas fa-file-alt text-muted me-2"></i>{{ doc.titulo }}
+                </td>
+                <td>{{ doc.categoria.nome }}</td>
+                <td>{{ doc.data_envio|date:"d/m/Y" }}</td>
+                <td class="text-end">
+                  <a href="{% url 'listar_arquivos' %}?id={{ doc.id }}" class="btn btn-sm btn-outline-primary">
+                    <i class="fas fa-eye"></i>
+                  </a>
+                  <a href="{{ doc.arquivo.url }}" class="btn btn-sm btn-outline-secondary" download>
+                    <i class="fas fa-download"></i>
+                  </a>
+                </td>
+              </tr>
+            {% endfor %}
+          {% else %}
+            <tr>
+              <td colspan="4" class="text-muted text-center">Nenhum documento recente encontrado.</td>
+            </tr>
+          {% endif %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+
+<!-- Indicadores com Barras de Progresso -->
+<div class="row mt-5">
+  <div class="col-md-12">
+    <h5 class="mb-3"><i class="fas fa-chart-line text-dark me-2"></i> Progresso do Sistema</h5>
+    <div class="card p-3 shadow-sm">
+
+      <div class="mb-3">
+        <strong>Uso de Armazenamento</strong>
+        <div class="progress">
+          <div class="progress-bar bg-primary" style="width: {{ uso_armazenamento }}%">{{ uso_armazenamento }}%</div>
+        </div>
+      </div>
+
+      <div class="mb-3">
+        <strong>Meta de uploads do mês</strong>
+        <div class="progress">
+          <div class="progress-bar bg-success" style="width: {{ meta_uploads }}%">{{ meta_uploads }}%</div>
+        </div>
+      </div>
+
+      <div>
+        <strong>Backup concluído</strong>
+        <div class="progress">
+          <div class="progress-bar bg-info" style="width: {{ backup_concluido }}%">{{ backup_concluido }}%</div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+
+
+
+  </div>
+</div>
+{% endblock %}

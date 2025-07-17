@@ -1,0 +1,193 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Login | Sistema de Arquivos</title>
+
+  <!-- Google Font: Source Sans Pro -->
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,400i,700&display=fallback">
+  <!-- Font Awesome -->
+  <link rel="stylesheet" href="{% static 'assets/plugins/fontawesome-free/css/all.min.css' %}">
+  <!-- icheck bootstrap -->
+  <link rel="stylesheet" href="{% static 'assets/plugins/icheck-bootstrap/icheck-bootstrap.min.css' %}">
+  <!-- Theme style -->
+  <link rel="stylesheet" href="{% static 'assets/dist/css/adminlte.min.css' %}">
+
+<style>
+  body.login-page {
+    background: url("{% static 'assets/dist/img/img03.webp' %}") no-repeat center center fixed;
+    background-size: cover;
+    backdrop-filter: blur(2px);
+  }
+
+  .login-box, .card {
+    background-color: rgba(255, 255, 255, 0.95);
+    border-radius: 8px;
+    box-shadow: 0 0 15px rgba(0,0,0,0.2);
+  }
+
+  .login-card-body {
+    background: url("{% static 'assets/dist/img/img03.webp' %}") no-repeat center center;
+    background-size: cover;
+    border-radius: 8px;
+    padding: 20px;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .login-card-body::before {
+    content: "";
+    position: absolute;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background-color: rgba(255, 255, 255, 0.85); /* camada branca suave */
+    z-index: 1;
+  }
+
+  .login-card-body > * {
+    position: relative;
+    z-index: 2;
+  }
+
+  .login-logo a {
+    color: #007bff;
+    font-weight: bold;
+    text-shadow: 1px 1px 2px #fff;
+  }
+</style>
+
+
+
+</head>
+<body class="hold-transition login-page">
+<div class="login-box">
+  <div class="login-logo">
+    <a href="#"><b>SDU</b> Marabá</a>
+  </div>
+
+  <div class="card">
+    <div class="card-body login-card-body">
+      <p class="login-box-msg">Acesse sua conta</p>
+
+      {% if messages %}
+        {% for message in messages %}
+          <div class="alert alert-danger">{{ message }}</div>
+        {% endfor %}
+      {% endif %}
+
+      <form method="post">
+        {% csrf_token %}
+        <div class="input-group mb-3">
+          <input type="text" name="username" class="form-control" placeholder="Usuário" required>
+          <div class="input-group-append">
+            <div class="input-group-text">
+              <span class="fas fa-user"></span>
+            </div>
+          </div>
+        </div>
+        <div class="input-group mb-3">
+          <input type="password" name="password" class="form-control" placeholder="Senha" required>
+          <div class="input-group-append">
+            <div class="input-group-text">
+              <span class="fas fa-lock"></span>
+            </div>
+          </div>
+        </div>
+        <div class="row">
+          <div class="col-8">
+            <div class="icheck-primary">
+              <input type="checkbox" id="remember">
+              <label for="remember">Lembrar-me</label>
+            </div>
+          </div>
+          <div class="col-4">
+            <button type="submit" class="btn btn-primary btn-block">Entrar</button>
+          </div>
+        </div>
+      </form>
+
+      <p class="mb-1 mt-3">
+        <a href="#">Esqueci minha senha</a>
+      </p>
+    </div>
+  </div>
+</div>
+
+<!-- Modal de Confirmação com Contagem -->
+<!-- Modal de Confirmação com Contagem e Documentos -->
+<div class="modal fade" id="confirmacaoModal" tabindex="-1" role="dialog" aria-labelledby="confirmacaoModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered" role="document">
+    <div class="modal-content border-success">
+      <div class="modal-header bg-success text-white">
+        <h5 class="modal-title" id="confirmacaoModalLabel">
+          <i class="fas fa-check-circle"></i> Login realizado com sucesso!
+        </h5>
+      </div>
+      <div class="modal-body">
+        <p class="text-center">Você será redirecionado em <span id="contador">5</span> segundos...</p>
+
+        {% if tramitacoes %}
+          <hr>
+          <h6 class="text-success mb-2">Documentos em tramitação:</h6>
+          <ul class="list-group">
+            {% for t in tramitacoes %}
+              <li class="list-group-item d-flex justify-content-between align-items-center">
+                <div>
+                  <strong>{{ t.documento.titulo }}</strong><br>
+                  <small class="text-muted">Enviado por {{ t.remetente.get_full_name }} em {{ t.data_envio|date:"d/m/Y H:i" }}</small>
+                </div>
+                <span class="badge badge-warning badge-pill">{{ t.get_status_display }}</span>
+              </li>
+            {% endfor %}
+          </ul>
+        {% else %}
+          <div class="alert alert-light border mt-3 text-center">Nenhum documento em tramitação no momento.</div>
+        {% endif %}
+
+        <div class="text-center mt-3">
+          <div class="spinner-border text-success" role="status">
+            <span class="sr-only">Carregando...</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+
+
+
+
+<!-- jQuery -->
+<script src="{% static 'assets/plugins/jquery/jquery.min.js' %}"></script>
+<!-- Bootstrap 4 -->
+<script src="{% static 'assets/plugins/bootstrap/js/bootstrap.bundle.min.js' %}"></script>
+<!-- AdminLTE App -->
+<script src="{% static 'assets/dist/js/adminlte.min.js' %}"></script>
+
+
+
+{% if login_sucesso %}
+<script>
+  $(document).ready(function () {
+    $('#confirmacaoModal').modal('show');
+    let segundos = 5;
+    const contador = setInterval(() => {
+      segundos--;
+      $('#contador').text(segundos);
+      if (segundos <= 0) {
+        clearInterval(contador);
+        window.location.href = "{% url 'arquivos_index' %}";  // <-- ajuste aqui
+      }
+    }, 1000);
+  });
+</script>
+{% endif %}
+
+
+
+
+</body>
+</html>

@@ -1,0 +1,231 @@
+{% extends 'base.html' %}
+
+{% block content %}
+
+
+{% if messages %}
+  {% for message in messages %}
+    <div class="alert alert-success">
+        {{ message }}
+    </div>
+  {% endfor %}
+{% endif %}
+
+
+<div class="content-header">
+  <div class="container-fluid">
+    <h1 class="m-0 text-primary">
+      <i class="fas fa-archive mr-2"></i> Documentos Arquivados
+    </h1>
+    <hr class="mt-2 mb-4">
+  </div>
+</div>
+
+<div class="content">
+  <div class="container-fluid">
+
+    <!-- Filtro e Ações -->
+    <div class="card shadow-sm mb-4 border-0">
+      <div class="card-body bg-light">
+        <form method="get" class="form-row align-items-center">
+          <div class="col-md-4 mb-2">
+            <input type="text" name="q" class="form-control" placeholder="Buscar por título, categoria..." value="{{ busca }}">
+          </div>
+          <div class="col-auto mb-2">
+            <button class="btn btn-outline-primary">
+              <i class="fas fa-search mr-1"></i> Buscar
+            </button>
+          </div>
+          <div class="col-auto mb-2">
+            <a href="{% url 'cadastrar_arquivo' %}" class="btn btn-outline-success">
+              <i class="fas fa-plus mr-1"></i> Novo Documento
+            </a>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <!-- Tabela de Documentos -->
+    <div class="card shadow-sm border-0">
+      <div class="card-body">
+        <div class="table-responsive">
+
+          <!-- <p>Total de usuários carregados: {{ usuarios|length }}</p> -->
+
+
+          <table class="table table-hover table-bordered table-sm">
+            <thead class="thead-light">
+              <tr class="text-center text-secondary">
+                <th>Título</th>
+                <th>Categoria</th>
+                <th>Órgão</th>
+                <th>Departamento</th>
+                <th>Secretaria</th>
+                <th>Data</th>
+                <th>Extensão</th>
+                <th>Observações</th>
+                <th>Ações</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for doc in arquivos %}
+              <tr>
+                <td>{{ doc.titulo }}</td>
+                <td>{{ doc.categoria.nome }}</td>
+                <td>{% if doc.orgao %}{{ doc.orgao.nome }}{% else %}-{% endif %}</td>
+                <td>{% if doc.departamento %}{{ doc.departamento.nome }}{% else %}-{% endif %}</td>
+                <td>{% if doc.secretaria %}{{ doc.secretaria.nome }}{% else %}-{% endif %}</td>
+                <td class="text-nowrap">{{ doc.data_envio|date:"d/m/Y H:i" }}</td>
+                <td class="text-center text-muted">{{ doc.arquivo.name|slice:"-5:"|upper }}</td>
+                <td>{{ doc.observacoes|default:"-"|truncatechars:50 }}</td>
+                <td class="text-center">
+
+                  <!-- Visualizar -->
+                  <a href="{{ doc.arquivo.url }}" target="_blank" class="btn btn-sm btn-outline-primary" title="Visualizar documento">
+                    <i class="fas fa-eye"></i>
+                  </a>
+
+                  <!-- Encaminhar -->
+                  <button class="btn btn-sm btn-outline-secondary" data-toggle="modal" data-target="#modalEncaminhar{{ doc.id }}" title="Encaminhar documento">
+                    <i class="fas fa-share-square"></i>
+                  </button>
+
+                  <!-- Modal Encaminhar -->
+                  <div class="modal fade" id="modalEncaminhar{{ doc.id }}" tabindex="-1" role="dialog" aria-labelledby="modalLabel{{ doc.id }}" aria-hidden="true">
+                    <div class="modal-dialog modal-dialog-centered" role="document">
+                      <div class="modal-content border-0 shadow">
+                        <div class="modal-header bg-primary text-white">
+                          <h5 class="modal-title" id="modalLabel{{ doc.id }}">
+                            <i class="fas fa-share-square mr-2"></i> Encaminhar Documento
+                          </h5>
+                          <button type="button" class="close text-white" data-dismiss="modal" aria-label="Fechar">
+                            <span aria-hidden="true">&times;</span>
+                          </button>
+                        </div>
+                        <form method="post" action="{% url 'encaminhar_documento' doc.id %}">
+                          {% csrf_token %}
+                          <div class="modal-body">
+
+                            <div class="form-group">
+                          <label for="departamento_id">Departamento</label>
+                          <select name="departamento_id" class="form-control departamento-select">
+                            <option value="">-- Selecione --</option>
+                            {% for orgao in orgaos %}
+                              {% for dept in orgao.departamentos.all %}
+                                <option value="{{ dept.id }}">{{ orgao.nome }} - {{ dept.nome }}</option>
+                              {% endfor %}
+                            {% endfor %}
+                          </select>
+                        </div>
+
+                        <div class="form-group">
+                          <label for="secretaria_id">Secretaria</label>
+                          <select name="secretaria_id" class="form-control secretaria-select">
+                            <option value="">-- Selecione --</option>
+                            {% for orgao in orgaos %}
+                              {% for dept in orgao.departamentos.all %}
+                                {% for sec in dept.secretarias.all %}
+                                  <option value="{{ sec.id }}" data-departamento="{{ dept.id }}">
+                                    {{ orgao.nome }} - {{ dept.nome }} - {{ sec.nome }}
+                                  </option>
+                                {% endfor %}
+                              {% endfor %}
+                            {% endfor %}
+                          </select>
+                        </div>
+
+                        <div class="form-group">
+  <label for="usuario_destino_id">Encaminhar para o Usuário</label>
+  <select name="usuario_destino_id" class="form-control">
+    <option value="">-- Selecione o Usuário --</option>
+    {% for usuario in usuarios %}
+      <option value="{{ usuario.id }}">{{ usuario.first_name }} {{ usuario.last_name }}</option>
+    {% endfor %}
+  </select>
+</div>
+
+
+                            <div class="form-group">
+                              <label>Mensagem</label>
+                              <textarea name="mensagem" class="form-control" rows="3"></textarea>
+                            </div>
+                          </div>
+                          <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancelar</button>
+                            <button type="submit" class="btn btn-primary">Enviar</button>
+                          </div>
+                        </form>
+                      </div>
+                    </div>
+                  </div>
+
+
+
+
+                </td>
+              </tr>
+              {% empty %}
+              <tr>
+                <td colspan="9" class="text-center text-muted">Nenhum documento encontrado.</td>
+              </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+
+        <!-- Paginação -->
+        {% if arquivos.has_other_pages %}
+        <nav class="mt-3">
+          <ul class="pagination justify-content-center">
+            {% if arquivos.has_previous %}
+              <li class="page-item">
+                <a class="page-link" href="?q={{ busca }}&page={{ arquivos.previous_page_number }}">Anterior</a>
+              </li>
+            {% endif %}
+            <li class="page-item active">
+              <span class="page-link">{{ arquivos.number }}</span>
+            </li>
+            {% if arquivos.has_next %}
+              <li class="page-item">
+                <a class="page-link" href="?q={{ busca }}&page={{ arquivos.next_page_number }}">Próxima</a>
+              </li>
+            {% endif %}
+          </ul>
+        </nav>
+        {% endif %}
+      </div>
+    </div>
+
+  </div>
+</div>
+
+
+
+
+<script>
+$(".departamento-select").on("change", function () {
+  const selectedDeptId = $(this).val();
+  const modal = $(this).closest(".modal");
+  const secretariaSelect = modal.find(".secretaria-select");
+
+  secretariaSelect.find("option").each(function () {
+    const option = $(this);
+    const departamentoId = option.data("departamento");
+
+    if (!departamentoId) {
+      option.show(); // mantém o "-- Selecione --"
+    } else if (departamentoId == selectedDeptId) {
+      option.show();
+    } else {
+      option.hide();
+    }
+  });
+
+  secretariaSelect.val(""); // limpa o campo após troca
+});
+
+</script>
+
+
+
+{% endblock %}

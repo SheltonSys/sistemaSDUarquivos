@@ -1,0 +1,240 @@
+{% load static %}
+
+<aside class="main-sidebar sidebar-dark-primary elevation-4">
+  <!-- Logo -->
+  <a href="{% url 'arquivos_index' %}" class="brand-link">
+    <img src="{% static 'assets/dist/img/AdminLTELogo.png' %}" alt="Logo" class="brand-image img-circle elevation-3" style="opacity: .8">
+    <span class="brand-text font-weight-light">Gestão de Arquivos</span>
+  </a>
+
+  <!-- Sidebar -->
+  <div class="sidebar">
+
+    <!-- Usuário -->
+    <div class="user-panel mt-3 pb-3 mb-3 d-flex">
+  <div class="image">
+    <img src="{% static 'assets/dist/img/user2-160x160.jpg' %}" class="img-circle elevation-2" alt="User Image">
+  </div>
+  <div class="info">
+    <a href="#" class="d-block">{{ request.user.username }}</a>
+
+  </div>
+</div>
+
+
+    <!-- Busca -->
+    <div class="form-inline">
+      <div class="input-group" data-widget="sidebar-search">
+        <input class="form-control form-control-sidebar" type="search" placeholder="Buscar" aria-label="Buscar">
+        <div class="input-group-append">
+          <button class="btn btn-sidebar">
+            <i class="fas fa-search fa-fw"></i>
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Menu -->
+    <nav class="mt-2">
+      <ul class="nav nav-pills nav-sidebar flex-column" data-widget="treeview" role="menu" data-accordion="false">
+        
+        <!-- Início -->
+<li class="nav-item">
+  <a href="{% url 'arquivos_index' %}" class="nav-link">
+    <i class="nav-icon fas fa-home"></i>
+    <p>Início</p>
+  </a>
+</li>
+
+
+        <!-- Usuários -->
+<!-- Usuários -->
+<li class="nav-item has-treeview">
+  <a href="#" class="nav-link">
+    <i class="nav-icon fas fa-users"></i>
+    <p>Usuários <i class="right fas fa-angle-left"></i></p>
+  </a>
+  <ul class="nav nav-treeview">
+    <li class="nav-item">
+      <a href="{% url 'listar_usuarios' %}" class="nav-link">
+        <i class="fas fa-list nav-icon"></i>
+        <p>Listar Usuários</p>
+      </a>
+    </li>
+    <li class="nav-item">
+      <a href="{% url 'cadastrar_usuario' %}" class="nav-link">
+        <i class="fas fa-user-plus nav-icon"></i>
+        <p>Novo Usuário</p>
+      </a>
+    </li>
+  </ul>
+</li>
+
+
+
+        <!-- Documentos -->
+<li class="nav-item has-treeview">
+  <a href="#" class="nav-link">
+    <i class="nav-icon fas fa-folder-open"></i>
+    <p>
+      Documentos
+      <i class="right fas fa-angle-left"></i>
+    </p>
+  </a>
+  <ul class="nav nav-treeview">
+    <li class="nav-item">
+      <a href="{% url 'listar_arquivos' %}" class="nav-link">
+        <i class="far fa-file nav-icon"></i>
+        <p>Listar Arquivos</p>
+      </a>
+    </li>
+    <li class="nav-item">
+      <a href="{% url 'cadastrar_arquivo' %}" class="nav-link">
+        <i class="far fa-plus-square nav-icon"></i>
+        <p>Novo Arquivo</p>
+      </a>
+    </li>
+    <li class="nav-item">
+      <a href="{% url 'documentos_com_encaminhamento' %}" class="nav-link">
+        <i class="fas fa-share-square nav-icon"></i>
+        <p>Documentos Tramitados</p>
+      </a>
+    </li>
+  </ul>
+</li>
+
+
+        <!-- Categorias -->
+        <li class="nav-item has-treeview">
+          <a href="#" class="nav-link">
+            <i class="nav-icon fas fa-tags"></i>
+            <p>
+              Categorias
+              <i class="right fas fa-angle-left"></i>
+            </p>
+          </a>
+          <ul class="nav nav-treeview">
+            <li class="nav-item">
+              <a href="{% url 'listar_categorias' %}" class="nav-link">
+                <i class="far fa-list-alt nav-icon"></i>
+                <p>Listar Categorias</p>
+              </a>
+            </li>
+            <li class="nav-item">
+              <a href="{% url 'nova_categoria' %}" class="nav-link">
+                <i class="far fa-plus-square nav-icon"></i>
+                <p>Nova Categoria</p>
+              </a>
+            </li>
+          </ul>
+        </li>
+
+
+
+
+        <!-- Órgãos -->
+<li class="nav-item has-treeview">
+  <a href="#" class="nav-link">
+    <i class="nav-icon fas fa-university"></i>
+    <p>
+      Órgãos
+      <i class="right fas fa-angle-left"></i>
+    </p>
+  </a>
+  <ul class="nav nav-treeview">
+    <li class="nav-item">
+      <a href="{% url 'listar_orgaos' %}" class="nav-link">
+        <i class="far fa-building nav-icon"></i>
+        <p>Listar Órgãos</p>
+      </a>
+    </li>
+    <li class="nav-item">
+      <a href="{% url 'listar_departamentos' %}" class="nav-link">
+        <i class="fas fa-sitemap nav-icon"></i>
+        <p>Departamentos</p>
+      </a>
+    </li>
+    <li class="nav-item">
+      <a href="{% url 'listar_secretarias' %}" class="nav-link">
+        <i class="fas fa-briefcase nav-icon"></i>
+        <p>Secretarias</p>
+      </a>
+    </li>
+  </ul>
+</li>
+
+
+
+<!-- Digitalização -->
+<li class="nav-item has-treeview">
+  <a href="#" class="nav-link">
+    <i class="nav-icon fas fa-print"></i>
+    <p>
+      Digitalização
+      <i class="right fas fa-angle-left"></i>
+    </p>
+  </a>
+  <ul class="nav nav-treeview">
+    <li class="nav-item">
+      <a href="{% url 'digitalizar_documento' %}" class="nav-link">
+        <i class="fas fa-plus nav-icon"></i>
+        <p>Nova Digitalização</p>
+      </a>
+    </li>
+    <li class="nav-item">
+      <a href="{% url 'listar_digitalizacoes' %}" class="nav-link">
+        <i class="fas fa-folder-open nav-icon"></i>
+        <p>Documentos Digitalizados</p>
+      </a>
+    </li>
+  </ul>
+</li>
+
+
+
+
+        
+        <!-- Favoritos -->
+<li class="nav-item has-treeview">
+  <a href="#" class="nav-link">
+    <i class="nav-icon far fa-bookmark"></i>
+    <p>
+      Favoritos
+      <i class="right fas fa-angle-left"></i>
+    </p>
+  </a>
+  <ul class="nav nav-treeview">
+    <li class="nav-item">
+      <a href="{% url 'listar_favoritos' %}" class="nav-link">
+        <i class="far fa-star nav-icon"></i>
+        <p>Listar Favoritos</p>
+      </a>
+    </li>
+    <li class="nav-item">
+      <a href="{% url 'adicionar_favorito' %}" class="nav-link">
+        <i class="far fa-plus-square nav-icon"></i>
+        <p>Adicionar Favorito</p>
+      </a>
+    </li>
+  </ul>
+</li>
+
+
+
+
+        <!-- Configurações -->
+        <li class="nav-item">
+          <a href="#" class="nav-link disabled">
+            <i class="nav-icon fas fa-cog"></i>
+            <p>Configurações</p>
+          </a>
+        </li>
+
+
+
+
+
+      </ul>
+    </nav>
+  </div>
+</aside>
